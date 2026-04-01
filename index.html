@@ -153,7 +153,6 @@
 
   // 카카오 지도 SDK를 동적으로 로드하고 콜백으로 초기화
   function loadKakaoMap() {
-    Kakao.init(KAKAO_JS_KEY);
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KAKAO_JS_KEY + '&libraries=services&autoload=false';
