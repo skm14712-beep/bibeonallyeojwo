@@ -907,11 +907,11 @@
   window.addEventListener('load', () => {
     if (KAKAO_JS_KEY !== '08bae2c54e73ddc9396d171fc16d26c9') {
       const script = document.createElement('script');
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${08bae2c54e73ddc9396d171fc16d26c9}&libraries=services&autoload=false`;
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&libraries=services&autoload=false`;
       script.onload = initMap;
       document.head.appendChild(script);
 
-      try { Kakao.init(08bae2c54e73ddc9396d171fc16d26c9); } catch(e) {}
+      try { Kakao.init(KAKAO_JS_KEY); } catch(e) {}
     } else {
       initMap(); // API 키 안내 화면 표시
     }
