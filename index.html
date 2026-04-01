@@ -12,33 +12,57 @@
   :root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--accent:#00e5a0;--accent2:#ff6b35;--text:#f0f0f0;--text2:#888;--danger:#ff4444}
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+  /* HEADER */
   header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);z-index:100;flex-shrink:0}
   .logo{font-family:'Space Mono',monospace;font-weight:700;font-size:18px;color:var(--accent);letter-spacing:-1px}
   .logo span{color:var(--text2);font-size:12px;display:block;font-weight:400;margin-top:-2px}
-  .btn{padding:8px 14px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
-  .btn-kakao{background:#FEE500;color:#3C1E1E;display:flex;align-items:center;gap:6px}
-  .btn-kakao:hover{background:#f0d800}
-  .btn-accent{background:var(--accent);color:#000;font-weight:700;width:100%;padding:14px;font-size:15px;border-radius:10px;display:block;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif}
-  .btn-accent:hover{background:#00c988}
-  .btn-accent:disabled{background:#333;color:#555;cursor:not-allowed}
-  .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);width:100%;padding:14px;font-size:15px;border-radius:10px;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
-  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* TABS */
+  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+  .tab{flex:1;padding:12px;text-align:center;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* SEARCH */
   .search-bar{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
   .search-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;transition:border-color .15s}
   .search-input:focus{border-color:var(--accent)}
   .search-input::placeholder{color:var(--text2)}
   .btn-gps{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--accent);cursor:pointer;font-size:18px;transition:all .15s;display:flex;align-items:center}
   .btn-gps:hover{background:var(--accent);color:#000}
+
+  /* MAP */
   .map-wrapper{flex:1;min-height:0;position:relative}
   #map{position:absolute;top:0;left:0;right:0;bottom:0}
-  .bottom-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:200;max-height:70vh;overflow-y:auto}
+
+  /* LIST TAB */
+  .list-wrapper{flex:1;min-height:0;overflow-y:auto;display:none}
+  .list-wrapper.active{display:block}
+  .list-search{padding:12px 16px;position:sticky;top:0;background:var(--bg);z-index:10;border-bottom:1px solid var(--border)}
+  .list-search input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none}
+  .list-search input:focus{border-color:var(--accent)}
+  .list-search input::placeholder{color:var(--text2)}
+  .list-items{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+  .list-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color .15s}
+  .list-item:hover{border-color:var(--accent)}
+  .list-item-name{font-size:15px;font-weight:700;margin-bottom:4px}
+  .list-item-addr{font-size:12px;color:var(--text2);margin-bottom:8px}
+  .list-item-meta{display:flex;gap:8px;flex-wrap:wrap}
+  .list-badge{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--surface2);color:var(--text2)}
+  .list-badge.accent{background:#1a3a2a;color:var(--accent)}
+  .list-empty{text-align:center;padding:60px 20px;color:var(--text2)}
+  .list-empty .emoji{font-size:40px;margin-bottom:12px}
+
+  /* BOTTOM SHEET */
+  .bottom-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:200;max-height:75vh;overflow-y:auto}
   .bottom-sheet.open{transform:translateY(0)}
   .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
   .sheet-content{padding:0 20px 40px}
   .place-name{font-size:18px;font-weight:700;margin-bottom:4px}
   .place-addr{font-size:13px;color:var(--text2);margin-bottom:20px}
   .toilet-list{display:flex;flex-direction:column;gap:10px}
-  .toilet-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+  .toilet-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .toilet-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
   .toilet-info{flex:1}
   .toilet-floor{font-size:13px;color:var(--text2);margin-bottom:2px}
   .toilet-gender{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;margin-bottom:6px;font-weight:500}
@@ -48,11 +72,27 @@
   .toilet-pw{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);letter-spacing:2px}
   .toilet-meta{font-size:11px;color:var(--text2);margin-top:4px}
   .toilet-actions{display:flex;flex-direction:column;gap:6px;margin-left:12px}
+  .amenity-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+  .amenity-tag{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--surface);color:var(--text2)}
+  .amenity-tag.yes{background:#1a3a2a;color:var(--accent)}
+  .amenity-tag.no{background:#2a1a1a;color:#666}
   .btn-sm{padding:6px 10px;border-radius:6px;border:none;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
   .btn-report{background:#2a1a1a;color:var(--danger);border:1px solid #3a2020}
   .btn-confirm{background:#1a2a1a;color:var(--accent);border:1px solid #1e3a1e}
   .add-toilet-btn{width:100%;margin-top:16px;padding:14px;background:transparent;border:1.5px dashed var(--border);border-radius:12px;color:var(--text2);font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s}
   .add-toilet-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* BUTTONS */
+  .btn{padding:8px 14px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+  .btn-kakao{background:#FEE500;color:#3C1E1E;display:flex;align-items:center;gap:6px}
+  .btn-kakao:hover{background:#f0d800}
+  .btn-accent{background:var(--accent);color:#000;font-weight:700;width:100%;padding:14px;font-size:15px;border-radius:10px;display:block;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif}
+  .btn-accent:hover{background:#00c988}
+  .btn-accent:disabled{background:#333;color:#555;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);width:100%;padding:14px;font-size:15px;border-radius:10px;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
   .modal-overlay.open{display:flex}
   .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;width:100%;max-width:400px;margin:auto}
@@ -64,18 +104,26 @@
   .form-input:focus,.form-select:focus{border-color:var(--accent)}
   .form-select option{background:var(--surface2)}
 
-  /* 서약문 오버레이 */
+  /* AMENITY CHECKBOXES */
+  .amenity-checks{display:flex;gap:10px;flex-wrap:wrap}
+  .amenity-check{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;transition:all .15s;user-select:none}
+  .amenity-check input{display:none}
+  .amenity-check.checked{background:#1a3a2a;border-color:var(--accent);color:var(--accent)}
+  .amenity-check span{font-size:13px}
+
+  /* OATH OVERLAY */
   .oath-wrapper{position:relative;border-radius:8px;overflow:hidden;border:1.5px solid var(--accent2);background:var(--surface2)}
   .oath-wrapper.done{border-color:var(--accent)}
-  .oath-overlay{position:absolute;top:0;left:0;right:0;bottom:0;padding:10px 14px;font-family:'Noto Sans KR',sans-serif;font-size:12px;line-height:1.8;pointer-events:none;white-space:pre-wrap;word-break:break-all}
+  .oath-overlay{position:absolute;top:0;left:0;right:0;bottom:0;padding:10px 14px;font-family:'Noto Sans KR',sans-serif;font-size:12px;line-height:1.8;pointer-events:none;white-space:pre-wrap;word-break:break-all;overflow:hidden}
   .oath-typed{color:var(--accent);font-weight:600}
   .oath-ghost{color:rgba(255,255,255,0.2)}
   .oath-textarea{width:100%;background:transparent;border:none;padding:10px 14px;color:transparent;caret-color:var(--accent);font-family:'Noto Sans KR',sans-serif;font-size:12px;line-height:1.8;outline:none;resize:none;height:90px;position:relative;z-index:1}
-
   .oath-status{font-size:11px;margin-top:6px;min-height:16px}
   .oath-ok{color:var(--accent)}
   .oath-fail{color:var(--danger)}
   .modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:24px}
+
+  /* TOAST */
   .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:all .3s;z-index:500;white-space:nowrap}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .empty-state{text-align:center;padding:30px 0;color:var(--text2)}
@@ -90,15 +138,29 @@
   <div><button class="btn btn-kakao" id="loginBtn" onclick="handleLogin()">💬 카카오 로그인</button></div>
 </header>
 
-<div class="search-bar">
+<div class="tabs">
+  <div class="tab active" id="tabMap" onclick="switchTab('map')">🗺 지도</div>
+  <div class="tab" id="tabList" onclick="switchTab('list')">📋 목록</div>
+</div>
+
+<div class="search-bar" id="mapSearchBar">
   <input class="search-input" type="text" placeholder="건물명 또는 매장명 검색..." id="searchInput" />
   <button class="btn-gps" onclick="moveToCurrentLocation()">📍</button>
 </div>
 
-<div class="map-wrapper"><div id="map"></div></div>
+<div class="map-wrapper" id="mapView">
+  <div id="map"></div>
+</div>
+
+<div class="list-wrapper" id="listView">
+  <div class="list-search">
+    <input type="text" placeholder="장소 검색..." id="listSearchInput" oninput="filterList()" />
+  </div>
+  <div class="list-items" id="listItems"></div>
+</div>
 
 <div class="bottom-sheet" id="bottomSheet">
-  <div class="sheet-handle"></div>
+  <div class="sheet-handle" onclick="closeSheet()"></div>
   <div class="sheet-content">
     <div class="place-name" id="placeName"></div>
     <div class="place-addr" id="placeAddr"></div>
@@ -128,14 +190,27 @@
       <input class="form-input" type="text" id="pwInput" placeholder="예: 1234, 1234#, *1234#" />
     </div>
     <div class="form-group">
+      <label class="form-label">편의시설 (선택)</label>
+      <div class="amenity-checks">
+        <label class="amenity-check" id="chkPaper" onclick="toggleCheck('chkPaper','hasPaper')">
+          <input type="checkbox" id="hasPaper"> <span>🧻 휴지</span>
+        </label>
+        <label class="amenity-check" id="chkSoap" onclick="toggleCheck('chkSoap','hasSoap')">
+          <input type="checkbox" id="hasSoap"> <span>🧼 비누</span>
+        </label>
+        <label class="amenity-check" id="chkTowel" onclick="toggleCheck('chkTowel','hasTowel')">
+          <input type="checkbox" id="hasTowel"> <span>🤲 핸드타월</span>
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
       <label class="form-label">✋ 서약서 — 흐린 글자를 따라 타이핑하세요 (복붙 불가)</label>
       <div class="oath-wrapper" id="oathWrapper">
         <div class="oath-overlay" id="oathOverlay"></div>
         <textarea class="oath-textarea" id="oathInput"
           onpaste="return blockPaste(event)"
           oninput="checkOath()"
-          onscroll="syncScroll()"
-        ></textarea>
+          onscroll="syncScroll()"></textarea>
       </div>
       <div class="oath-status" id="oathStatus"></div>
     </div>
@@ -152,37 +227,67 @@
 var KAKAO_JS_KEY = 'b35ff72524613a2c48022c5d6917a911';
 var SUPABASE_URL = 'https://ucalsyqkkfdtiinrsmnz.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjYWxzeXFra2ZkdGlpbnJzbW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTM0NzMsImV4cCI6MjA5MDU4OTQ3M30.8MTxdwv4mNFi0rqhhFLiBvgf3vNp5xLMbHmTCLl2Jlk';
-
 var OATH_TEXT = '내가 등록하는 비밀번호는 사실이며, 허위 등록 시 언젠가 내가 가장 급할 때 반드시 틀린 번호를 만나게 될 것임을 영혼으로 인지합니다.';
+
 var map = null, markers = [], currentPlace = null, isLoggedIn = false, kakaoUserId = null, kakaoNick = null;
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var allData = [];
+var amenityState = {hasPaper: false, hasSoap: false, hasTowel: false};
+var currentTab = 'map';
 
-// 서약문 오버레이 초기화
-function initOathOverlay() {
-  updateOathOverlay('');
+function toggleCheck(labelId, key) {
+  amenityState[key] = !amenityState[key];
+  var el = document.getElementById(labelId);
+  if (amenityState[key]) el.classList.add('checked');
+  else el.classList.remove('checked');
 }
 
-function updateOathOverlay(typed) {
-  var overlay = document.getElementById('oathOverlay');
-  var matchLen = 0;
-  for (var i = 0; i < typed.length && i < OATH_TEXT.length; i++) {
-    if (typed[i] === OATH_TEXT[i]) matchLen = i + 1;
-    else break;
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabMap').classList.toggle('active', tab==='map');
+  document.getElementById('tabList').classList.toggle('active', tab==='list');
+  document.getElementById('mapView').style.display = tab==='map' ? '' : 'none';
+  document.getElementById('mapSearchBar').style.display = tab==='map' ? '' : 'none';
+  document.getElementById('listView').style.display = tab==='list' ? 'flex' : 'none';
+  document.getElementById('listView').style.flexDirection = 'column';
+  if (tab==='list') renderList(allData);
+  document.getElementById('bottomSheet').classList.remove('open');
+}
+
+function renderList(data) {
+  var places = {};
+  data.forEach(function(p) {
+    var k = p.lat+'_'+p.lng;
+    if (!places[k]) places[k] = {name:p.place_name, addr:p.place_addr, lat:p.lat, lng:p.lng, count:0};
+    places[k].count++;
+  });
+  var keys = Object.keys(places);
+  var container = document.getElementById('listItems');
+  if (!keys.length) {
+    container.innerHTML = '<div class="list-empty"><div class="emoji">🔒</div><p>아직 등록된 장소가 없어요</p></div>';
+    return;
   }
-  var typed_part = '<span class="oath-typed">' + escHtml(OATH_TEXT.slice(0, matchLen)) + '</span>';
-  var ghost_part = '<span class="oath-ghost">' + escHtml(OATH_TEXT.slice(matchLen)) + '</span>';
-  overlay.innerHTML = typed_part + ghost_part;
+  container.innerHTML = '';
+  keys.forEach(function(k) {
+    var p = places[k];
+    var div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = '<div class="list-item-name">'+escHtml(p.name)+'</div><div class="list-item-addr">'+escHtml(p.addr)+'</div><div class="list-item-meta"><span class="list-badge accent">🔑 비번 '+p.count+'개</span></div>';
+    div.onclick = (function(lat,lng,name,addr){ return function(){
+      currentPlace = {lat:lat,lng:lng,name:name,addr:addr};
+      showPlaceSheet(lat,lng);
+      if (map) map.setCenter(new kakao.maps.LatLng(lat,lng));
+    };})(p.lat,p.lng,p.name,p.addr);
+    container.appendChild(div);
+  });
 }
 
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function syncScroll() {
-  var ta = document.getElementById('oathInput');
-  var overlay = document.getElementById('oathOverlay');
-  overlay.scrollTop = ta.scrollTop;
+function filterList() {
+  var q = document.getElementById('listSearchInput').value.toLowerCase();
+  var filtered = allData.filter(function(p){
+    return p.place_name.toLowerCase().indexOf(q)>=0 || p.place_addr.toLowerCase().indexOf(q)>=0;
+  });
+  renderList(filtered);
 }
 
 window.onload = function() {
@@ -191,7 +296,7 @@ window.onload = function() {
     center: new kakao.maps.LatLng(37.5665, 126.9780),
     level: 5
   });
-  initOathOverlay();
+  updateOathOverlay('');
   moveToCurrentLocation();
   loadMarkers();
   document.getElementById('searchInput').addEventListener('keydown', function(e) {
@@ -200,7 +305,7 @@ window.onload = function() {
 };
 
 async function loadMarkers() {
-  var result = await sb.from('passwords').select('*');
+  var result = await sb.from('passwords').select('*').order('created_at', {ascending:false});
   if (result.error) { console.error('loadMarkers error:', result.error); return; }
   allData = result.data;
   markers.forEach(function(m){ m.setMap(null); }); markers = [];
@@ -215,6 +320,7 @@ async function loadMarkers() {
     (function(lat,lng){ kakao.maps.event.addListener(m,'click',function(){ showPlaceSheet(lat,lng); }); })(place.lat, place.lng);
     markers.push(m);
   });
+  if (currentTab === 'list') renderList(allData);
 }
 
 function renderToiletList(list, placeData) {
@@ -225,19 +331,34 @@ function renderToiletList(list, placeData) {
   }
   placeData.forEach(function(item) {
     var gl = item.gender==='all'?'공용':item.gender==='m'?'남성':'여성';
-    list.innerHTML += '<div class="toilet-item"><div class="toilet-info"><div class="toilet-floor">'+item.floor+'</div><span class="toilet-gender gender-'+item.gender+'">'+gl+'</span><div class="toilet-pw">'+item.pw+'</div><div class="toilet-meta">✓ '+item.confirmed_count+'명 확인</div></div><div class="toilet-actions"><button class="btn-sm btn-confirm" onclick="confirmPw('+item.id+')">맞아요</button><button class="btn-sm btn-report" onclick="reportPw('+item.id+')">틀려요</button></div></div>';
+    var amenityHtml = '';
+    if (item.has_paper !== null || item.has_soap !== null || item.has_towel !== null) {
+      amenityHtml = '<div class="amenity-row">';
+      if (item.has_paper !== null) amenityHtml += '<span class="amenity-tag '+(item.has_paper?'yes':'no')+'">🧻 휴지 '+(item.has_paper?'있음':'없음')+'</span>';
+      if (item.has_soap !== null) amenityHtml += '<span class="amenity-tag '+(item.has_soap?'yes':'no')+'">🧼 비누 '+(item.has_soap?'있음':'없음')+'</span>';
+      if (item.has_towel !== null) amenityHtml += '<span class="amenity-tag '+(item.has_towel?'yes':'no')+'">🤲 핸드타월 '+(item.has_towel?'있음':'없음')+'</span>';
+      amenityHtml += '</div>';
+    }
+    list.innerHTML += '<div class="toilet-item"><div class="toilet-item-top"><div class="toilet-info"><div class="toilet-floor">'+item.floor+'</div><span class="toilet-gender gender-'+item.gender+'">'+gl+'</span><div class="toilet-pw">'+item.pw+'</div><div class="toilet-meta">✓ '+item.confirmed_count+'명 확인</div></div><div class="toilet-actions"><button class="btn-sm btn-confirm" onclick="confirmPw('+item.id+')">맞아요</button><button class="btn-sm btn-report" onclick="reportPw('+item.id+')">틀려요</button></div></div>'+amenityHtml+'</div>';
   });
 }
 
 function showPlaceSheet(lat, lng) {
   var placeData = allData.filter(function(p){ return p.lat===lat && p.lng===lng; });
-  if (!placeData.length) return;
+  if (!placeData.length) {
+    currentPlace = currentPlace || {lat:lat,lng:lng,name:'',addr:''};
+    document.getElementById('toiletList').innerHTML = '<div class="empty-state"><div class="emoji">🔒</div><p>아직 등록된 비밀번호가 없어요.<br>첫 번째로 등록해보세요!</p></div>';
+    document.getElementById('bottomSheet').classList.add('open');
+    return;
+  }
   currentPlace = {lat:lat, lng:lng, name:placeData[0].place_name, addr:placeData[0].place_addr};
   document.getElementById('placeName').textContent = placeData[0].place_name;
   document.getElementById('placeAddr').textContent = placeData[0].place_addr;
   renderToiletList(document.getElementById('toiletList'), placeData);
   document.getElementById('bottomSheet').classList.add('open');
 }
+
+function closeSheet() { document.getElementById('bottomSheet').classList.remove('open'); }
 
 function moveToCurrentLocation() {
   if (!navigator.geolocation) { showToast('GPS를 지원하지 않는 브라우저예요'); return; }
@@ -280,11 +401,27 @@ function openAddModal() {
   document.getElementById('oathStatus').textContent = '';
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('oathWrapper').classList.remove('done');
+  amenityState = {hasPaper:false, hasSoap:false, hasTowel:false};
+  ['chkPaper','chkSoap','chkTowel'].forEach(function(id){ document.getElementById(id).classList.remove('checked'); });
   document.getElementById('addModal').classList.add('open');
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function blockPaste(e) { e.preventDefault(); showToast('❌ 복붙은 안 돼요!'); return false; }
+
+function updateOathOverlay(typed) {
+  var overlay = document.getElementById('oathOverlay');
+  var matchLen = 0;
+  for (var i = 0; i < typed.length && i < OATH_TEXT.length; i++) {
+    if (typed[i] === OATH_TEXT[i]) matchLen = i+1; else break;
+  }
+  overlay.innerHTML = '<span class="oath-typed">'+escHtml(OATH_TEXT.slice(0,matchLen))+'</span><span class="oath-ghost">'+escHtml(OATH_TEXT.slice(matchLen))+'</span>';
+}
+
+function syncScroll() {
+  var ta = document.getElementById('oathInput');
+  document.getElementById('oathOverlay').scrollTop = ta.scrollTop;
+}
 
 function checkOath() {
   var val = document.getElementById('oathInput').value;
@@ -292,19 +429,15 @@ function checkOath() {
   var btn = document.getElementById('submitBtn');
   updateOathOverlay(val);
   if (val === OATH_TEXT) {
-    status.textContent='✅ 서약 완료!'; status.className='oath-status oath-ok';
-    btn.disabled=false;
+    status.textContent='✅ 서약 완료!'; status.className='oath-status oath-ok'; btn.disabled=false;
     document.getElementById('oathWrapper').classList.add('done');
-  } else if (val.length === 0) {
-    status.textContent=''; btn.disabled=true;
-    document.getElementById('oathWrapper').classList.remove('done');
+  } else if (val.length===0) {
+    status.textContent=''; btn.disabled=true; document.getElementById('oathWrapper').classList.remove('done');
   } else if (OATH_TEXT.indexOf(val)===0) {
-    status.textContent='입력 중... '+Math.round(val.length/OATH_TEXT.length*100)+'%';
-    status.className='oath-status'; btn.disabled=true;
+    status.textContent='입력 중... '+Math.round(val.length/OATH_TEXT.length*100)+'%'; status.className='oath-status'; btn.disabled=true;
     document.getElementById('oathWrapper').classList.remove('done');
   } else {
-    status.textContent='❌ 정확히 입력해주세요'; status.className='oath-status oath-fail';
-    btn.disabled=true;
+    status.textContent='❌ 정확히 입력해주세요'; status.className='oath-status oath-fail'; btn.disabled=true;
     document.getElementById('oathWrapper').classList.remove('done');
   }
 }
@@ -314,31 +447,18 @@ async function submitPassword() {
   var gender = document.getElementById('genderSelect').value;
   var pw = document.getElementById('pwInput').value.trim();
   if (!floor||!pw) { showToast('층/위치와 비밀번호를 입력해주세요'); return; }
-
   var btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = '저장 중...';
-
+  btn.disabled=true; btn.textContent='저장 중...';
   var result = await sb.from('passwords').insert([{
-    place_name: currentPlace.name,
-    place_addr: currentPlace.addr,
-    lat: currentPlace.lat,
-    lng: currentPlace.lng,
-    floor: floor,
-    gender: gender,
-    pw: pw,
-    kakao_id: kakaoUserId,
-    confirmed_count: 0
+    place_name:currentPlace.name, place_addr:currentPlace.addr,
+    lat:currentPlace.lat, lng:currentPlace.lng,
+    floor:floor, gender:gender, pw:pw, kakao_id:kakaoUserId, confirmed_count:0,
+    has_paper: amenityState.hasPaper ? true : null,
+    has_soap: amenityState.hasSoap ? true : null,
+    has_towel: amenityState.hasTowel ? true : null
   }]);
-
-  btn.textContent = '등록하기';
-
-  if (result.error) {
-    console.error('insert error:', result.error);
-    showToast('저장 실패: '+result.error.message);
-    btn.disabled = false;
-    return;
-  }
-
+  btn.textContent='등록하기';
+  if (result.error) { console.error(result.error); showToast('저장 실패: '+result.error.message); btn.disabled=false; return; }
   closeModal('addModal');
   ['floorInput','pwInput','oathInput'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('oathStatus').textContent='';
@@ -350,12 +470,11 @@ async function submitPassword() {
 async function confirmPw(id) {
   var item = allData.find(function(p){ return p.id===id; });
   if (!item) return;
-  await sb.from('passwords').update({confirmed_count: item.confirmed_count+1}).eq('id', id);
+  await sb.from('passwords').update({confirmed_count:item.confirmed_count+1}).eq('id',id);
   await loadMarkers();
   showPlaceSheet(currentPlace.lat, currentPlace.lng);
   showToast('👍 확인 감사해요!');
 }
-
 function reportPw(id) { showToast('🚨 제보 접수됐어요!'); }
 
 function handleLogin() {
@@ -365,27 +484,30 @@ function handleLogin() {
     showToast('로그아웃 됐어요'); return;
   }
   Kakao.Auth.login({
-    success: function() {
-      Kakao.API.request({url:'/v2/user/me', success:function(res){
-        isLoggedIn=true;
-        kakaoUserId = String(res.id);
-        kakaoNick = res.kakao_account && res.kakao_account.profile ? res.kakao_account.profile.nickname : '사용자';
+    success:function(){
+      Kakao.API.request({url:'/v2/user/me',success:function(res){
+        isLoggedIn=true; kakaoUserId=String(res.id);
+        kakaoNick=res.kakao_account&&res.kakao_account.profile?res.kakao_account.profile.nickname:'사용자';
         document.getElementById('loginBtn').innerHTML='👤 '+kakaoNick;
         showToast('✅ '+kakaoNick+'님 로그인됐어요!');
       }});
     },
-    fail: function(err) { showToast('로그인 실패: '+(err.error_description||'')); }
+    fail:function(err){ showToast('로그인 실패: '+(err.error_description||'')); }
   });
 }
 
 function showToast(msg) {
-  var t = document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+  var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },2500);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 document.addEventListener('click', function(e) {
-  var m = document.getElementById('addModal');
-  if (m.classList.contains('open') && e.target===m) closeModal('addModal');
+  var m=document.getElementById('addModal');
+  if (m.classList.contains('open')&&e.target===m) closeModal('addModal');
 });
 </script>
 </body>
