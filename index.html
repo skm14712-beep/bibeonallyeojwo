@@ -4,264 +4,91 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🚾 비번알려줘</title>
+<script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap');
-
-  :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #242424;
-    --border: #2e2e2e;
-    --accent: #00e5a0;
-    --accent2: #ff6b35;
-    --text: #f0f0f0;
-    --text2: #888;
-    --danger: #ff4444;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    z-index: 100;
-    flex-shrink: 0;
-  }
-
-  .logo {
-    font-family: 'Space Mono', monospace;
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--accent);
-    letter-spacing: -1px;
-  }
-  .logo span { color: var(--text2); font-size: 12px; display: block; font-weight: 400; margin-top: -2px; }
-
-  .btn {
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: none;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-kakao { background: #FEE500; color: #3C1E1E; display: flex; align-items: center; gap: 6px; }
-  .btn-kakao:hover { background: #f0d800; }
-  .btn-accent { background: var(--accent); color: #000; font-weight: 700; }
-  .btn-accent:hover { background: #00c988; }
-  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-
-  .search-bar {
-    padding: 10px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .search-input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 14px;
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-input:focus { border-color: var(--accent); }
-  .search-input::placeholder { color: var(--text2); }
-
-  .btn-gps {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    color: var(--accent);
-    cursor: pointer;
-    font-size: 18px;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-  }
-  .btn-gps:hover { background: var(--accent); color: #000; }
-
-  .map-wrapper { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-  #map { flex: 1; width: 100%; min-height: 0; }
-
-  .bottom-sheet {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    border-radius: 16px 16px 0 0;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-    z-index: 200;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-  .bottom-sheet.open { transform: translateY(0); }
-
-  .sheet-handle {
-    width: 36px; height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin: 12px auto 16px;
-  }
-  .sheet-content { padding: 0 20px 40px; }
-  .place-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-  .place-addr { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
-  .toilet-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .toilet-item {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .toilet-info { flex: 1; }
-  .toilet-floor { font-size: 13px; color: var(--text2); margin-bottom: 2px; }
-  .toilet-gender {
-    display: inline-block; font-size: 11px;
-    padding: 2px 8px; border-radius: 4px;
-    margin-bottom: 6px; font-weight: 500;
-  }
-  .gender-all { background: #1a3a2a; color: var(--accent); }
-  .gender-m { background: #1a2a3a; color: #60a5fa; }
-  .gender-f { background: #3a1a2a; color: #f472b6; }
-  .toilet-pw {
-    font-family: 'Space Mono', monospace;
-    font-size: 22px; font-weight: 700;
-    color: var(--accent); letter-spacing: 2px;
-  }
-  .toilet-meta { font-size: 11px; color: var(--text2); margin-top: 4px; }
-  .toilet-actions { display: flex; flex-direction: column; gap: 6px; margin-left: 12px; }
-  .btn-sm { padding: 6px 10px; border-radius: 6px; border: none; font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
-  .btn-report { background: #2a1a1a; color: var(--danger); border: 1px solid #3a2020; }
-  .btn-confirm { background: #1a2a1a; color: var(--accent); border: 1px solid #1e3a1e; }
-
-  .add-toilet-btn {
-    width: 100%; margin-top: 16px; padding: 14px;
-    background: transparent; border: 1.5px dashed var(--border);
-    border-radius: 12px; color: var(--text2); font-size: 14px;
-    cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s;
-  }
-  .add-toilet-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 300; display: none;
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 28px 24px;
-    width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto;
-  }
-  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-  .modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
-  .form-group { margin-bottom: 16px; }
-  .form-label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
-  .form-input, .form-select {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 14px; color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif; font-size: 14px; outline: none; transition: border-color 0.15s;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--accent); }
-  .form-select option { background: var(--surface2); }
-
-  .oath-box {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px 14px;
-    font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 8px;
-  }
-  .oath-box strong { color: var(--accent2); }
-  .oath-input {
-    width: 100%; background: var(--surface2);
-    border: 1.5px solid var(--accent2); border-radius: 8px;
-    padding: 10px 14px; color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif; font-size: 12px;
-    outline: none; resize: none; height: 72px;
-  }
-  .oath-input::placeholder { color: var(--text2); font-size: 11px; }
-  .oath-status { font-size: 11px; margin-top: 6px; min-height: 16px; }
-  .oath-ok { color: var(--accent); }
-  .oath-fail { color: var(--danger); }
-  .modal-actions { display: flex; gap: 8px; margin-top: 24px; }
-  .modal-actions .btn { flex: 1; padding: 12px; font-size: 14px; }
-
-  .toast {
-    position: fixed; bottom: 80px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 10px 20px; border-radius: 100px;
-    font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 500; white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  .empty-state { text-align: center; padding: 30px 0; color: var(--text2); }
-  .empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; line-height: 1.6; }
-
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  :root { --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--accent:#00e5a0;--accent2:#ff6b35;--text:#f0f0f0;--text2:#888;--danger:#ff4444; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);z-index:100;flex-shrink:0}
+  .logo{font-family:'Space Mono',monospace;font-weight:700;font-size:18px;color:var(--accent);letter-spacing:-1px}
+  .logo span{color:var(--text2);font-size:12px;display:block;font-weight:400;margin-top:-2px}
+  .btn{padding:8px 14px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+  .btn-kakao{background:#FEE500;color:#3C1E1E;display:flex;align-items:center;gap:6px}
+  .btn-kakao:hover{background:#f0d800}
+  .btn-accent{background:var(--accent);color:#000;font-weight:700}
+  .btn-accent:hover{background:#00c988}
+  .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .search-bar{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+  .search-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;transition:border-color .15s}
+  .search-input:focus{border-color:var(--accent)}
+  .search-input::placeholder{color:var(--text2)}
+  .btn-gps{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--accent);cursor:pointer;font-size:18px;transition:all .15s;display:flex;align-items:center}
+  .btn-gps:hover{background:var(--accent);color:#000}
+  .map-wrapper{position:relative;flex:1;min-height:0}
+  #map{width:100%;height:100%}
+  .bottom-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:200;max-height:70vh;overflow-y:auto}
+  .bottom-sheet.open{transform:translateY(0)}
+  .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
+  .sheet-content{padding:0 20px 40px}
+  .place-name{font-size:18px;font-weight:700;margin-bottom:4px}
+  .place-addr{font-size:13px;color:var(--text2);margin-bottom:20px}
+  .toilet-list{display:flex;flex-direction:column;gap:10px}
+  .toilet-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+  .toilet-info{flex:1}
+  .toilet-floor{font-size:13px;color:var(--text2);margin-bottom:2px}
+  .toilet-gender{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;margin-bottom:6px;font-weight:500}
+  .gender-all{background:#1a3a2a;color:var(--accent)}
+  .gender-m{background:#1a2a3a;color:#60a5fa}
+  .gender-f{background:#3a1a2a;color:#f472b6}
+  .toilet-pw{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);letter-spacing:2px}
+  .toilet-meta{font-size:11px;color:var(--text2);margin-top:4px}
+  .toilet-actions{display:flex;flex-direction:column;gap:6px;margin-left:12px}
+  .btn-sm{padding:6px 10px;border-radius:6px;border:none;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+  .btn-report{background:#2a1a1a;color:var(--danger);border:1px solid #3a2020}
+  .btn-confirm{background:#1a2a1a;color:var(--accent);border:1px solid #1e3a1e}
+  .add-toilet-btn{width:100%;margin-top:16px;padding:14px;background:transparent;border:1.5px dashed var(--border);border-radius:12px;color:var(--text2);font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s}
+  .add-toilet-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto}
+  .modal-title{font-size:18px;font-weight:700;margin-bottom:6px}
+  .modal-sub{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.5}
+  .form-group{margin-bottom:16px}
+  .form-label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500}
+  .form-input,.form-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;transition:border-color .15s}
+  .form-input:focus,.form-select:focus{border-color:var(--accent)}
+  .form-select option{background:var(--surface2)}
+  .oath-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px}
+  .oath-box strong{color:var(--accent2)}
+  .oath-input{width:100%;background:var(--surface2);border:1.5px solid var(--accent2);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;outline:none;resize:none;height:72px}
+  .oath-input::placeholder{color:var(--text2);font-size:11px}
+  .oath-status{font-size:11px;margin-top:6px;min-height:16px}
+  .oath-ok{color:var(--accent)}
+  .oath-fail{color:var(--danger)}
+  .modal-actions{display:flex;gap:8px;margin-top:24px}
+  .modal-actions .btn{flex:1;padding:12px;font-size:14px}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:all .3s;z-index:500;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .empty-state{text-align:center;padding:30px 0;color:var(--text2)}
+  .empty-state .emoji{font-size:40px;margin-bottom:12px}
+  .empty-state p{font-size:14px;line-height:1.6}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    🚾 비번알려줘
-    <span>화장실 비밀번호 공유</span>
-  </div>
-  <div class="header-actions">
-    <button class="btn btn-kakao" id="loginBtn" onclick="handleLogin()">
-      💬 카카오 로그인
-    </button>
-  </div>
+  <div class="logo">🚾 비번알려줘<span>화장실 비밀번호 공유</span></div>
+  <div><button class="btn btn-kakao" id="loginBtn" onclick="handleLogin()">💬 카카오 로그인</button></div>
 </header>
 
 <div class="search-bar">
   <input class="search-input" type="text" placeholder="건물명 또는 매장명 검색..." id="searchInput" />
-  <button class="btn-gps" onclick="moveToCurrentLocation()" title="현재 위치">📍</button>
+  <button class="btn-gps" onclick="moveToCurrentLocation()">📍</button>
 </div>
 
-<div class="map-wrapper">
-  <div id="map"></div>
-</div>
+<div class="map-wrapper"><div id="map"></div></div>
 
 <div class="bottom-sheet" id="bottomSheet">
   <div class="sheet-handle"></div>
@@ -295,16 +122,10 @@
     </div>
     <div class="form-group">
       <label class="form-label">✋ 서약서 (직접 입력 필수)</label>
-      <div class="oath-box">
-        아래 문장을 <strong>직접 타이핑</strong>해야 등록이 완료됩니다.<br>
-        복사·붙여넣기는 작동하지 않습니다.
-      </div>
-      <textarea
-        class="oath-input" id="oathInput"
+      <div class="oath-box">아래 문장을 <strong>직접 타이핑</strong>해야 등록이 완료됩니다.<br>복사·붙여넣기는 작동하지 않습니다.</div>
+      <textarea class="oath-input" id="oathInput"
         placeholder="내가 등록하는 비밀번호는 사실이며, 허위 등록 시 언젠가 내가 가장 급할 때 반드시 틀린 번호를 만나게 될 것임을 영혼으로 인지합니다."
-        onpaste="return blockPaste(event)"
-        oninput="checkOath()"
-      ></textarea>
+        onpaste="return blockPaste(event)" oninput="checkOath()"></textarea>
       <div class="oath-status" id="oathStatus"></div>
     </div>
     <div class="modal-actions">
@@ -316,241 +137,123 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ↓↓↓ 이 줄의 b35ff72524613a2c48022c5d6917a911 를 발급받은 키로 교체하세요 ↓↓↓ -->
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b35ff72524613a2c48022c5d6917a911&libraries=services"></script>
+<!-- ↑↑↑ 여기만 바꾸면 됩니다 ↑↑↑ -->
+
 <script>
-  // =============================================
-  // 여기에 카카오 JavaScript 키만 입력하세요
-  const KAKAO_JS_KEY = 'b35ff72524613a2c48022c5d6917a911';
-  // =============================================
+  const KAKAO_JS_KEY = 'b35ff72524613a2c48022c5d6917a911'; // ← 여기도 같은 키로 바꾸세요
 
   const OATH_TEXT = '내가 등록하는 비밀번호는 사실이며, 허위 등록 시 언젠가 내가 가장 급할 때 반드시 틀린 번호를 만나게 될 것임을 영혼으로 인지합니다.';
-
-  let map = null;
-  let markers = [];
-  let currentPlace = null;
-  let isLoggedIn = false;
+  let map=null,markers=[],currentPlace=null,isLoggedIn=false;
 
   let passwords = [
-    { id: 1, placeName: '스타벅스 강남점', placeAddr: '서울 강남구 강남대로 123', lat: 37.4979, lng: 127.0276, floor: '1층', gender: 'all', pw: '1234#', confirmedAt: '2시간 전', confirmedCount: 5 },
-    { id: 2, placeName: '롯데백화점 본점', placeAddr: '서울 중구 남대문로 81', lat: 37.5651, lng: 126.9817, floor: 'B1', gender: 'm', pw: '*5678#', confirmedAt: '30분 전', confirmedCount: 12 },
-    { id: 3, placeName: '롯데백화점 본점', placeAddr: '서울 중구 남대문로 81', lat: 37.5651, lng: 126.9817, floor: '3층', gender: 'f', pw: '9012', confirmedAt: '1일 전', confirmedCount: 3 }
+    {id:1,placeName:'스타벅스 강남점',placeAddr:'서울 강남구 강남대로 123',lat:37.4979,lng:127.0276,floor:'1층',gender:'all',pw:'1234#',confirmedAt:'2시간 전',confirmedCount:5},
+    {id:2,placeName:'롯데백화점 본점',placeAddr:'서울 중구 남대문로 81',lat:37.5651,lng:126.9817,floor:'B1',gender:'m',pw:'*5678#',confirmedAt:'30분 전',confirmedCount:12},
+    {id:3,placeName:'롯데백화점 본점',placeAddr:'서울 중구 남대문로 81',lat:37.5651,lng:126.9817,floor:'3층',gender:'f',pw:'9012',confirmedAt:'1일 전',confirmedCount:3}
   ];
 
-  // 카카오 SDK + 지도 로드
-  window.addEventListener('load', () => {
-    const sdkScript = document.createElement('script');
-    sdkScript.src = 'https://developers.kakao.com/sdk/js/kakao.min.js';
-    sdkScript.onload = () => {
-      Kakao.init(KAKAO_JS_KEY);
-
-      const mapScript = document.createElement('script');
-      mapScript.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&libraries=services&autoload=false`;
-      mapScript.onload = () => {
-        kakao.maps.load(() => {
-          const container = document.getElementById('map');
-          map = new kakao.maps.Map(container, {
-            center: new kakao.maps.LatLng(37.5665, 126.9780),
-            level: 5
-          });
-          moveToCurrentLocation();
-          refreshMarkers();
-          document.getElementById('searchInput').addEventListener('keydown', e => {
-            if (e.key === 'Enter') searchPlace(e.target.value);
-          });
-        });
-      };
-      document.head.appendChild(mapScript);
-    };
-    document.head.appendChild(sdkScript);
+  window.addEventListener('load',()=>{
+    Kakao.init(KAKAO_JS_KEY);
+    map=new kakao.maps.Map(document.getElementById('map'),{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
+    moveToCurrentLocation();
+    refreshMarkers();
+    document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchPlace(e.target.value);});
   });
 
-  function moveToCurrentLocation() {
-    if (!navigator.geolocation) { showToast('GPS를 지원하지 않는 브라우저예요'); return; }
+  function moveToCurrentLocation(){
+    if(!navigator.geolocation){showToast('GPS를 지원하지 않는 브라우저예요');return;}
     showToast('📍 현재 위치 찾는 중...');
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        if (!map) return;
-        const latlng = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-        map.setCenter(latlng);
-        map.setLevel(4);
-        new kakao.maps.Marker({ map, position: latlng, title: '현재 위치' });
-        showToast('✅ 현재 위치로 이동했어요');
-      },
-      () => showToast('위치 권한을 허용해주세요')
+      pos=>{const ll=new kakao.maps.LatLng(pos.coords.latitude,pos.coords.longitude);map.setCenter(ll);map.setLevel(4);new kakao.maps.Marker({map,position:ll,title:'현재 위치'});showToast('✅ 현재 위치로 이동했어요');},
+      ()=>showToast('위치 권한을 허용해주세요')
     );
   }
 
-  function refreshMarkers() {
-    if (!map) return;
-    markers.forEach(m => m.setMap ? m.setMap(null) : null);
-    markers = [];
-
-    const places = {};
-    passwords.forEach(p => {
-      const key = `${p.lat}_${p.lng}`;
-      if (!places[key]) places[key] = { ...p, count: 0 };
-      places[key].count++;
-    });
-
-    Object.values(places).forEach(place => {
-      const latlng = new kakao.maps.LatLng(place.lat, place.lng);
-      const marker = new kakao.maps.Marker({ map, position: latlng });
-      kakao.maps.event.addListener(marker, 'click', () => showPlaceSheet(place.lat, place.lng));
-      markers.push(marker);
+  function refreshMarkers(){
+    markers.forEach(m=>m.setMap(null));markers=[];
+    const places={};
+    passwords.forEach(p=>{const k=`${p.lat}_${p.lng}`;if(!places[k])places[k]={...p,count:0};places[k].count++;});
+    Object.values(places).forEach(place=>{
+      const m=new kakao.maps.Marker({map,position:new kakao.maps.LatLng(place.lat,place.lng)});
+      kakao.maps.event.addListener(m,'click',()=>showPlaceSheet(place.lat,place.lng));
+      markers.push(m);
     });
   }
 
-  function showPlaceSheet(lat, lng) {
-    const key = `${lat}_${lng}`;
-    const placeData = passwords.filter(p => `${p.lat}_${p.lng}` === key);
-    if (!placeData.length) return;
-
-    currentPlace = { lat, lng, name: placeData[0].placeName, addr: placeData[0].placeAddr };
-    document.getElementById('placeName').textContent = placeData[0].placeName;
-    document.getElementById('placeAddr').textContent = placeData[0].placeAddr;
-
-    const list = document.getElementById('toiletList');
-    list.innerHTML = '';
-    placeData.forEach(item => {
-      const genderLabel = item.gender === 'all' ? '공용' : item.gender === 'm' ? '남성' : '여성';
-      const genderClass = `gender-${item.gender}`;
-      list.innerHTML += `
-        <div class="toilet-item">
-          <div class="toilet-info">
-            <div class="toilet-floor">${item.floor}</div>
-            <span class="toilet-gender ${genderClass}">${genderLabel}</span>
-            <div class="toilet-pw">${item.pw}</div>
-            <div class="toilet-meta">✓ ${item.confirmedCount}명 확인 · ${item.confirmedAt}</div>
-          </div>
-          <div class="toilet-actions">
-            <button class="btn-sm btn-confirm" onclick="confirmPw(${item.id})">맞아요</button>
-            <button class="btn-sm btn-report" onclick="reportPw(${item.id})">틀려요</button>
-          </div>
-        </div>`;
+  function showPlaceSheet(lat,lng){
+    const data=passwords.filter(p=>p.lat===lat&&p.lng===lng);
+    if(!data.length)return;
+    currentPlace={lat,lng,name:data[0].placeName,addr:data[0].placeAddr};
+    document.getElementById('placeName').textContent=data[0].placeName;
+    document.getElementById('placeAddr').textContent=data[0].placeAddr;
+    const list=document.getElementById('toiletList');list.innerHTML='';
+    data.forEach(item=>{
+      const gl=item.gender==='all'?'공용':item.gender==='m'?'남성':'여성';
+      list.innerHTML+=`<div class="toilet-item"><div class="toilet-info"><div class="toilet-floor">${item.floor}</div><span class="toilet-gender gender-${item.gender}">${gl}</span><div class="toilet-pw">${item.pw}</div><div class="toilet-meta">✓ ${item.confirmedCount}명 확인 · ${item.confirmedAt}</div></div><div class="toilet-actions"><button class="btn-sm btn-confirm" onclick="confirmPw(${item.id})">맞아요</button><button class="btn-sm btn-report" onclick="reportPw(${item.id})">틀려요</button></div></div>`;
     });
-
     document.getElementById('bottomSheet').classList.add('open');
   }
 
-  function searchPlace(query) {
-    if (!map || !query) return;
-    const ps = new kakao.maps.services.Places();
-    ps.keywordSearch(query, (data, status) => {
-      if (status === kakao.maps.services.Status.OK && data.length > 0) {
-        const place = data[0];
-        map.setCenter(new kakao.maps.LatLng(place.y, place.x));
-        map.setLevel(4);
-        currentPlace = {
-          lat: parseFloat(place.y), lng: parseFloat(place.x),
-          name: place.place_name,
-          addr: place.road_address_name || place.address_name
-        };
-        document.getElementById('placeName').textContent = place.place_name;
-        document.getElementById('placeAddr').textContent = place.road_address_name || place.address_name;
-        document.getElementById('toiletList').innerHTML = `
-          <div class="empty-state">
-            <div class="emoji">🔒</div>
-            <p>아직 등록된 비밀번호가 없어요.<br>첫 번째로 등록해보세요!</p>
-          </div>`;
+  function searchPlace(query){
+    if(!map||!query)return;
+    new kakao.maps.services.Places().keywordSearch(query,(data,status)=>{
+      if(status===kakao.maps.services.Status.OK&&data.length>0){
+        const p=data[0];map.setCenter(new kakao.maps.LatLng(p.y,p.x));map.setLevel(4);
+        currentPlace={lat:parseFloat(p.y),lng:parseFloat(p.x),name:p.place_name,addr:p.road_address_name||p.address_name};
+        document.getElementById('placeName').textContent=p.place_name;
+        document.getElementById('placeAddr').textContent=p.road_address_name||p.address_name;
+        document.getElementById('toiletList').innerHTML=`<div class="empty-state"><div class="emoji">🔒</div><p>아직 등록된 비밀번호가 없어요.<br>첫 번째로 등록해보세요!</p></div>`;
         document.getElementById('bottomSheet').classList.add('open');
-        showToast(`📍 ${place.place_name} 찾았어요`);
-      } else {
-        showToast('검색 결과가 없어요');
-      }
+        showToast(`📍 ${p.place_name} 찾았어요`);
+      }else showToast('검색 결과가 없어요');
     });
   }
 
-  function openAddModal() {
-    if (!isLoggedIn) { showToast('🔐 카카오 로그인이 필요해요'); return; }
-    if (!currentPlace) return;
-    document.getElementById('addModalSub').textContent = `${currentPlace.name} · ${currentPlace.addr}`;
+  function openAddModal(){
+    if(!isLoggedIn){showToast('🔐 카카오 로그인이 필요해요');return;}
+    if(!currentPlace)return;
+    document.getElementById('addModalSub').textContent=`${currentPlace.name} · ${currentPlace.addr}`;
     document.getElementById('addModal').classList.add('open');
   }
 
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function closeModal(id){document.getElementById(id).classList.remove('open');}
+  function blockPaste(e){e.preventDefault();showToast('❌ 붙여넣기는 안 돼요. 직접 타이핑해주세요!');return false;}
 
-  function blockPaste(e) {
-    e.preventDefault();
-    showToast('❌ 붙여넣기는 안 돼요. 직접 타이핑해주세요!');
-    return false;
+  function checkOath(){
+    const val=document.getElementById('oathInput').value;
+    const status=document.getElementById('oathStatus');
+    const btn=document.getElementById('submitBtn');
+    if(val===OATH_TEXT){status.textContent='✅ 서약 완료';status.className='oath-status oath-ok';btn.disabled=false;}
+    else if(OATH_TEXT.startsWith(val)){status.textContent=`입력 중... ${Math.round(val.length/OATH_TEXT.length*100)}%`;status.className='oath-status';btn.disabled=true;}
+    else{status.textContent='❌ 문장을 정확히 입력해주세요';status.className='oath-status oath-fail';btn.disabled=true;}
   }
 
-  function checkOath() {
-    const val = document.getElementById('oathInput').value;
-    const status = document.getElementById('oathStatus');
-    const btn = document.getElementById('submitBtn');
-    if (val === OATH_TEXT) {
-      status.textContent = '✅ 서약 완료';
-      status.className = 'oath-status oath-ok';
-      btn.disabled = false;
-    } else if (OATH_TEXT.startsWith(val)) {
-      status.textContent = `입력 중... ${Math.round(val.length / OATH_TEXT.length * 100)}%`;
-      status.className = 'oath-status';
-      btn.disabled = true;
-    } else {
-      status.textContent = '❌ 문장을 정확히 입력해주세요';
-      status.className = 'oath-status oath-fail';
-      btn.disabled = true;
-    }
-  }
-
-  function submitPassword() {
-    const floor = document.getElementById('floorInput').value.trim();
-    const gender = document.getElementById('genderSelect').value;
-    const pw = document.getElementById('pwInput').value.trim();
-    if (!floor || !pw) { showToast('층/위치와 비밀번호를 입력해주세요'); return; }
-    passwords.push({ id: Date.now(), placeName: currentPlace.name, placeAddr: currentPlace.addr, lat: currentPlace.lat, lng: currentPlace.lng, floor, gender, pw, confirmedAt: '방금 전', confirmedCount: 0 });
+  function submitPassword(){
+    const floor=document.getElementById('floorInput').value.trim();
+    const gender=document.getElementById('genderSelect').value;
+    const pw=document.getElementById('pwInput').value.trim();
+    if(!floor||!pw){showToast('층/위치와 비밀번호를 입력해주세요');return;}
+    passwords.push({id:Date.now(),placeName:currentPlace.name,placeAddr:currentPlace.addr,lat:currentPlace.lat,lng:currentPlace.lng,floor,gender,pw,confirmedAt:'방금 전',confirmedCount:0});
     closeModal('addModal');
-    document.getElementById('floorInput').value = '';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('oathInput').value = '';
-    document.getElementById('oathStatus').textContent = '';
-    document.getElementById('submitBtn').disabled = true;
-    refreshMarkers();
-    showPlaceSheet(currentPlace.lat, currentPlace.lng);
-    showToast('✅ 등록 완료! 감사해요 🙏');
+    ['floorInput','pwInput','oathInput'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('oathStatus').textContent='';document.getElementById('submitBtn').disabled=true;
+    refreshMarkers();showPlaceSheet(currentPlace.lat,currentPlace.lng);showToast('✅ 등록 완료! 감사해요 🙏');
   }
 
-  function confirmPw(id) {
-    const item = passwords.find(p => p.id === id);
-    if (item) { item.confirmedCount++; item.confirmedAt = '방금 전'; showPlaceSheet(currentPlace.lat, currentPlace.lng); showToast('👍 확인 감사해요!'); }
-  }
+  function confirmPw(id){const item=passwords.find(p=>p.id===id);if(item){item.confirmedCount++;item.confirmedAt='방금 전';showPlaceSheet(currentPlace.lat,currentPlace.lng);showToast('👍 확인 감사해요!');}}
+  function reportPw(id){showToast('🚨 제보 접수됐어요. 확인 후 처리할게요');}
 
-  function reportPw(id) { showToast('🚨 제보 접수됐어요. 확인 후 처리할게요'); }
-
-  function handleLogin() {
-    if (isLoggedIn) {
-      isLoggedIn = false;
-      document.getElementById('loginBtn').innerHTML = '💬 카카오 로그인';
-      showToast('로그아웃 됐어요');
-      return;
-    }
-    if (typeof Kakao === 'undefined') { showToast('잠시 후 다시 시도해주세요'); return; }
+  function handleLogin(){
+    if(isLoggedIn){isLoggedIn=false;document.getElementById('loginBtn').innerHTML='💬 카카오 로그인';showToast('로그아웃 됐어요');return;}
     Kakao.Auth.login({
-      success: () => {
-        Kakao.API.request({
-          url: '/v2/user/me',
-          success: res => {
-            isLoggedIn = true;
-            document.getElementById('loginBtn').innerHTML = `👤 ${res.kakao_account?.profile?.nickname || '사용자'}`;
-            showToast('✅ 로그인 됐어요!');
-          }
-        });
-      },
-      fail: err => showToast('로그인 실패: ' + (err.error_description || ''))
+      success:()=>Kakao.API.request({url:'/v2/user/me',success:res=>{isLoggedIn=true;document.getElementById('loginBtn').innerHTML=`👤 ${res.kakao_account?.profile?.nickname||'사용자'}`;showToast('✅ 로그인 됐어요!');}}),
+      fail:err=>showToast('로그인 실패: '+(err.error_description||''))
     });
   }
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
-
-  document.addEventListener('click', e => {
-    const modal = document.getElementById('addModal');
-    if (modal.classList.contains('open') && e.target === modal) closeModal('addModal');
-  });
+  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+  document.addEventListener('click',e=>{const m=document.getElementById('addModal');if(m.classList.contains('open')&&e.target===m)closeModal('addModal');});
 </script>
 </body>
 </html>
