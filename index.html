@@ -497,7 +497,7 @@
   // =============================
   // 설정: 여기에 카카오 API 키 입력
   // =============================
-  const 08bae2c54e73ddc9396d171fc16d26c9 = '08bae2c54e73ddc9396d171fc16d26c9'; // ← 여기에 JavaScript 키 입력
+  const KAKAO_JS_KEY = '08bae2c54e73ddc9396d171fc16d26c9'; // ← 여기에 JavaScript 키 입력
   // =============================
 
   const OATH_TEXT = '내가 등록하는 비밀번호는 사실이며, 허위 등록 시 언젠가 내가 가장 급할 때 반드시 틀린 번호를 만나게 될 것임을 영혼으로 인지합니다.';
@@ -538,7 +538,7 @@
 
   // 카카오맵 초기화
   function initMap() {
-    if (08bae2c54e73ddc9396d171fc16d26c9 === '08bae2c54e73ddc9396d171fc16d26c9') {
+    if (KAKAO_JS_KEY === '08bae2c54e73ddc9396d171fc16d26c9') {
       document.getElementById('mapLoading').innerHTML = `
         <div style="text-align:center;padding:20px">
           <div style="font-size:40px;margin-bottom:12px">🔑</div>
@@ -856,7 +856,7 @@
       return;
     }
 
-    if (08bae2c54e73ddc9396d171fc16d26c9 === '08bae2c54e73ddc9396d171fc16d26c9') {
+    if (KAKAO_JS_KEY === '08bae2c54e73ddc9396d171fc16d26c9') {
       showToast('API 키를 먼저 설정해주세요');
       return;
     }
@@ -905,7 +905,7 @@
 
   // 카카오 SDK 로드 후 지도 초기화
   window.addEventListener('load', () => {
-    if (08bae2c54e73ddc9396d171fc16d26c9 !== '08bae2c54e73ddc9396d171fc16d26c9') {
+    if (KAKAO_JS_KEY !== '08bae2c54e73ddc9396d171fc16d26c9') {
       const script = document.createElement('script');
       script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${08bae2c54e73ddc9396d171fc16d26c9}&libraries=services&autoload=false`;
       script.onload = initMap;
