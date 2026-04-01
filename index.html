@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🚾 비번알려줘</title>
-<script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap');
   :root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--accent:#00e5a0;--accent2:#ff6b35;--text:#f0f0f0;--text2:#888;--danger:#ff4444}
@@ -26,8 +25,8 @@
   .search-input::placeholder{color:var(--text2)}
   .btn-gps{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--accent);cursor:pointer;font-size:18px;transition:all .15s;display:flex;align-items:center}
   .btn-gps:hover{background:var(--accent);color:#000}
-  .map-wrapper{position:relative;flex:1;min-height:0}
-  #map{width:100%;height:100%;min-height:400px}
+  .map-wrapper{flex:1;min-height:0;position:relative}
+  #map{position:absolute;top:0;left:0;right:0;bottom:0}
   .bottom-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:200;max-height:70vh;overflow-y:auto}
   .bottom-sheet.open{transform:translateY(0)}
   .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
@@ -138,160 +137,161 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ↓↓↓ 여기에 카카오 JavaScript 키 입력 ↓↓↓
-  var KAKAO_JS_KEY = 'b35ff72524613a2c48022c5d6917a911';
-  // ↑↑↑ 여기만 바꾸면 됩니다 ↑↑↑
+// ↓↓↓ 여기에 카카오 JavaScript 키 입력 (여기 딱 한 군데만!) ↓↓↓
+var KAKAO_JS_KEY = 'b35ff72524613a2c48022c5d6917a911';
+// ↑↑↑ 여기만 바꾸면 됩니다 ↑↑↑
 
-  var OATH_TEXT = '내가 등록하는 비밀번호는 사실이며, 허위 등록 시 언젠가 내가 가장 급할 때 반드시 틀린 번호를 만나게 될 것임을 영혼으로 인지합니다.';
-  var map = null, markers = [], currentPlace = null, isLoggedIn = false;
+var OATH_TEXT = '내가 등록하는 비밀번호는 사실이며, 허위 등록 시 언젠가 내가 가장 급할 때 반드시 틀린 번호를 만나게 될 것임을 영혼으로 인지합니다.';
+var map = null, markers = [], currentPlace = null, isLoggedIn = false;
 
-  var passwords = [
-    {id:1,placeName:'스타벅스 강남점',placeAddr:'서울 강남구 강남대로 123',lat:37.4979,lng:127.0276,floor:'1층',gender:'all',pw:'1234#',confirmedAt:'2시간 전',confirmedCount:5},
-    {id:2,placeName:'롯데백화점 본점',placeAddr:'서울 중구 남대문로 81',lat:37.5651,lng:126.9817,floor:'B1',gender:'m',pw:'*5678#',confirmedAt:'30분 전',confirmedCount:12},
-    {id:3,placeName:'롯데백화점 본점',placeAddr:'서울 중구 남대문로 81',lat:37.5651,lng:126.9817,floor:'3층',gender:'f',pw:'9012',confirmedAt:'1일 전',confirmedCount:3}
-  ];
+var passwords = [
+  {id:1,placeName:'스타벅스 강남점',placeAddr:'서울 강남구 강남대로 123',lat:37.4979,lng:127.0276,floor:'1층',gender:'all',pw:'1234#',confirmedAt:'2시간 전',confirmedCount:5},
+  {id:2,placeName:'롯데백화점 본점',placeAddr:'서울 중구 남대문로 81',lat:37.5651,lng:126.9817,floor:'B1',gender:'m',pw:'*5678#',confirmedAt:'30분 전',confirmedCount:12},
+  {id:3,placeName:'롯데백화점 본점',placeAddr:'서울 중구 남대문로 81',lat:37.5651,lng:126.9817,floor:'3층',gender:'f',pw:'9012',confirmedAt:'1일 전',confirmedCount:3}
+];
 
-  // 카카오 지도 SDK를 동적으로 로드하고 콜백으로 초기화
-  function loadKakaoMap() {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + KAKAO_JS_KEY + '&libraries=services&autoload=false';
-    script.onload = function() {
-      kakao.maps.load(function() {
-        map = new kakao.maps.Map(document.getElementById('map'), {
-          center: new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 5
-        });
-        moveToCurrentLocation();
-        refreshMarkers();
-        document.getElementById('searchInput').addEventListener('keydown', function(e) {
-          if (e.key === 'Enter') searchPlace(e.target.value);
-        });
-      });
-    };
-    document.head.appendChild(script);
-  }
-
-  window.onload = function() {
-    loadKakaoMap();
-  };
-
-  function moveToCurrentLocation() {
-    if (!navigator.geolocation) { showToast('GPS를 지원하지 않는 브라우저예요'); return; }
-    showToast('📍 현재 위치 찾는 중...');
-    navigator.geolocation.getCurrentPosition(
-      function(pos) {
-        var ll = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-        map.setCenter(ll); map.setLevel(4);
-        new kakao.maps.Marker({map:map, position:ll, title:'현재 위치'});
-        showToast('✅ 현재 위치로 이동했어요');
-      },
-      function() { showToast('위치 권한을 허용해주세요'); }
-    );
-  }
-
-  function refreshMarkers() {
-    markers.forEach(function(m){m.setMap(null);}); markers = [];
-    var places = {};
-    passwords.forEach(function(p) {
-      var k = p.lat+'_'+p.lng;
-      if (!places[k]) places[k] = {lat:p.lat, lng:p.lng, name:p.placeName, addr:p.placeAddr, count:0};
-      places[k].count++;
-    });
-    Object.values(places).forEach(function(place) {
-      var m = new kakao.maps.Marker({map:map, position:new kakao.maps.LatLng(place.lat, place.lng)});
-      (function(lat, lng){ kakao.maps.event.addListener(m, 'click', function(){ showPlaceSheet(lat, lng); }); })(place.lat, place.lng);
-      markers.push(m);
-    });
-  }
-
-  function showPlaceSheet(lat, lng) {
-    var data = passwords.filter(function(p){ return p.lat===lat && p.lng===lng; });
-    if (!data.length) return;
-    currentPlace = {lat:lat, lng:lng, name:data[0].placeName, addr:data[0].placeAddr};
-    document.getElementById('placeName').textContent = data[0].placeName;
-    document.getElementById('placeAddr').textContent = data[0].placeAddr;
-    var list = document.getElementById('toiletList'); list.innerHTML = '';
-    data.forEach(function(item) {
-      var gl = item.gender==='all'?'공용':item.gender==='m'?'남성':'여성';
-      list.innerHTML += '<div class="toilet-item"><div class="toilet-info"><div class="toilet-floor">'+item.floor+'</div><span class="toilet-gender gender-'+item.gender+'">'+gl+'</span><div class="toilet-pw">'+item.pw+'</div><div class="toilet-meta">✓ '+item.confirmedCount+'명 확인 · '+item.confirmedAt+'</div></div><div class="toilet-actions"><button class="btn-sm btn-confirm" onclick="confirmPw('+item.id+')">맞아요</button><button class="btn-sm btn-report" onclick="reportPw('+item.id+')">틀려요</button></div></div>';
-    });
-    document.getElementById('bottomSheet').classList.add('open');
-  }
-
-  function searchPlace(query) {
-    if (!map || !query) return;
-    var ps = new kakao.maps.services.Places();
-    ps.keywordSearch(query, function(data, status) {
-      if (status === kakao.maps.services.Status.OK && data.length > 0) {
-        var p = data[0];
-        map.setCenter(new kakao.maps.LatLng(p.y, p.x)); map.setLevel(4);
-        currentPlace = {lat:parseFloat(p.y), lng:parseFloat(p.x), name:p.place_name, addr:p.road_address_name||p.address_name};
-        document.getElementById('placeName').textContent = p.place_name;
-        document.getElementById('placeAddr').textContent = p.road_address_name||p.address_name;
-        document.getElementById('toiletList').innerHTML = '<div class="empty-state"><div class="emoji">🔒</div><p>아직 등록된 비밀번호가 없어요.<br>첫 번째로 등록해보세요!</p></div>';
-        document.getElementById('bottomSheet').classList.add('open');
-        showToast('📍 '+p.place_name+' 찾았어요');
-      } else { showToast('검색 결과가 없어요'); }
-    });
-  }
-
-  function openAddModal() {
-    if (!isLoggedIn) { showToast('🔐 카카오 로그인이 필요해요'); return; }
-    if (!currentPlace) return;
-    document.getElementById('addModalSub').textContent = currentPlace.name+' · '+currentPlace.addr;
-    document.getElementById('addModal').classList.add('open');
-  }
-
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-  function blockPaste(e) { e.preventDefault(); showToast('❌ 붙여넣기는 안 돼요. 직접 타이핑해주세요!'); return false; }
-
-  function checkOath() {
-    var val = document.getElementById('oathInput').value;
-    var status = document.getElementById('oathStatus');
-    var btn = document.getElementById('submitBtn');
-    if (val === OATH_TEXT) { status.textContent='✅ 서약 완료'; status.className='oath-status oath-ok'; btn.disabled=false; }
-    else if (OATH_TEXT.indexOf(val)===0) { status.textContent='입력 중... '+Math.round(val.length/OATH_TEXT.length*100)+'%'; status.className='oath-status'; btn.disabled=true; }
-    else { status.textContent='❌ 문장을 정확히 입력해주세요'; status.className='oath-status oath-fail'; btn.disabled=true; }
-  }
-
-  function submitPassword() {
-    var floor = document.getElementById('floorInput').value.trim();
-    var gender = document.getElementById('genderSelect').value;
-    var pw = document.getElementById('pwInput').value.trim();
-    if (!floor||!pw) { showToast('층/위치와 비밀번호를 입력해주세요'); return; }
-    passwords.push({id:Date.now(), placeName:currentPlace.name, placeAddr:currentPlace.addr, lat:currentPlace.lat, lng:currentPlace.lng, floor:floor, gender:gender, pw:pw, confirmedAt:'방금 전', confirmedCount:0});
-    closeModal('addModal');
-    ['floorInput','pwInput','oathInput'].forEach(function(id){ document.getElementById(id).value=''; });
-    document.getElementById('oathStatus').textContent=''; document.getElementById('submitBtn').disabled=true;
-    refreshMarkers(); showPlaceSheet(currentPlace.lat, currentPlace.lng); showToast('✅ 등록 완료! 감사해요 🙏');
-  }
-
-  function confirmPw(id) {
-    var item = passwords.find(function(p){ return p.id===id; });
-    if (item) { item.confirmedCount++; item.confirmedAt='방금 전'; showPlaceSheet(currentPlace.lat, currentPlace.lng); showToast('👍 확인 감사해요!'); }
-  }
-  function reportPw(id) { showToast('🚨 제보 접수됐어요. 확인 후 처리할게요'); }
-
-  function handleLogin() {
-    if (isLoggedIn) { isLoggedIn=false; document.getElementById('loginBtn').innerHTML='💬 카카오 로그인'; showToast('로그아웃 됐어요'); return; }
-    Kakao.Auth.login({
-      success: function() {
-        Kakao.API.request({url:'/v2/user/me', success:function(res){ isLoggedIn=true; document.getElementById('loginBtn').innerHTML='👤 '+(res.kakao_account&&res.kakao_account.profile?res.kakao_account.profile.nickname:'사용자'); showToast('✅ 로그인 됐어요!'); }});
-      },
-      fail: function(err) { showToast('로그인 실패: '+(err.error_description||'')); }
-    });
-  }
-
-  function showToast(msg) {
-    var t = document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-    setTimeout(function(){ t.classList.remove('show'); }, 2500);
-  }
-
-  document.addEventListener('click', function(e) {
-    var m = document.getElementById('addModal');
-    if (m.classList.contains('open') && e.target===m) closeModal('addModal');
+// 카카오 지도 초기화 콜백 (SDK가 로드되면 자동 호출됨)
+function initMap() {
+  map = new kakao.maps.Map(document.getElementById('map'), {
+    center: new kakao.maps.LatLng(37.5665, 126.9780),
+    level: 5
   });
+  moveToCurrentLocation();
+  refreshMarkers();
+  document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') searchPlace(e.target.value);
+  });
+}
+
+function moveToCurrentLocation() {
+  if (!navigator.geolocation) { showToast('GPS를 지원하지 않는 브라우저예요'); return; }
+  showToast('📍 현재 위치 찾는 중...');
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      var ll = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+      map.setCenter(ll); map.setLevel(4);
+      new kakao.maps.Marker({map:map, position:ll, title:'현재 위치'});
+      showToast('✅ 현재 위치로 이동했어요');
+    },
+    function() { showToast('위치 권한을 허용해주세요'); }
+  );
+}
+
+function refreshMarkers() {
+  markers.forEach(function(m){ m.setMap(null); }); markers = [];
+  var places = {};
+  passwords.forEach(function(p) {
+    var k = p.lat+'_'+p.lng;
+    if (!places[k]) places[k] = {lat:p.lat, lng:p.lng, count:0};
+    places[k].count++;
+  });
+  Object.keys(places).forEach(function(k) {
+    var place = places[k];
+    var m = new kakao.maps.Marker({map:map, position:new kakao.maps.LatLng(place.lat, place.lng)});
+    (function(lat,lng){ kakao.maps.event.addListener(m,'click',function(){ showPlaceSheet(lat,lng); }); })(place.lat, place.lng);
+    markers.push(m);
+  });
+}
+
+function showPlaceSheet(lat, lng) {
+  var data = passwords.filter(function(p){ return p.lat===lat && p.lng===lng; });
+  if (!data.length) return;
+  currentPlace = {lat:lat, lng:lng, name:data[0].placeName, addr:data[0].placeAddr};
+  document.getElementById('placeName').textContent = data[0].placeName;
+  document.getElementById('placeAddr').textContent = data[0].placeAddr;
+  var list = document.getElementById('toiletList'); list.innerHTML = '';
+  data.forEach(function(item) {
+    var gl = item.gender==='all'?'공용':item.gender==='m'?'남성':'여성';
+    list.innerHTML += '<div class="toilet-item"><div class="toilet-info"><div class="toilet-floor">'+item.floor+'</div><span class="toilet-gender gender-'+item.gender+'">'+gl+'</span><div class="toilet-pw">'+item.pw+'</div><div class="toilet-meta">✓ '+item.confirmedCount+'명 확인 · '+item.confirmedAt+'</div></div><div class="toilet-actions"><button class="btn-sm btn-confirm" onclick="confirmPw('+item.id+')">맞아요</button><button class="btn-sm btn-report" onclick="reportPw('+item.id+')">틀려요</button></div></div>';
+  });
+  document.getElementById('bottomSheet').classList.add('open');
+}
+
+function searchPlace(query) {
+  if (!map || !query) return;
+  var ps = new kakao.maps.services.Places();
+  ps.keywordSearch(query, function(data, status) {
+    if (status === kakao.maps.services.Status.OK && data.length > 0) {
+      var p = data[0];
+      map.setCenter(new kakao.maps.LatLng(p.y, p.x)); map.setLevel(4);
+      currentPlace = {lat:parseFloat(p.y), lng:parseFloat(p.x), name:p.place_name, addr:p.road_address_name||p.address_name};
+      document.getElementById('placeName').textContent = p.place_name;
+      document.getElementById('placeAddr').textContent = p.road_address_name||p.address_name;
+      document.getElementById('toiletList').innerHTML = '<div class="empty-state"><div class="emoji">🔒</div><p>아직 등록된 비밀번호가 없어요.<br>첫 번째로 등록해보세요!</p></div>';
+      document.getElementById('bottomSheet').classList.add('open');
+      showToast('📍 '+p.place_name+' 찾았어요');
+    } else { showToast('검색 결과가 없어요'); }
+  });
+}
+
+function openAddModal() {
+  if (!isLoggedIn) { showToast('🔐 카카오 로그인이 필요해요'); return; }
+  if (!currentPlace) return;
+  document.getElementById('addModalSub').textContent = currentPlace.name+' · '+currentPlace.addr;
+  document.getElementById('addModal').classList.add('open');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function blockPaste(e) { e.preventDefault(); showToast('❌ 붙여넣기는 안 돼요. 직접 타이핑해주세요!'); return false; }
+
+function checkOath() {
+  var val = document.getElementById('oathInput').value;
+  var status = document.getElementById('oathStatus');
+  var btn = document.getElementById('submitBtn');
+  if (val === OATH_TEXT) { status.textContent='✅ 서약 완료'; status.className='oath-status oath-ok'; btn.disabled=false; }
+  else if (OATH_TEXT.indexOf(val)===0) { status.textContent='입력 중... '+Math.round(val.length/OATH_TEXT.length*100)+'%'; status.className='oath-status'; btn.disabled=true; }
+  else { status.textContent='❌ 문장을 정확히 입력해주세요'; status.className='oath-status oath-fail'; btn.disabled=true; }
+}
+
+function submitPassword() {
+  var floor = document.getElementById('floorInput').value.trim();
+  var gender = document.getElementById('genderSelect').value;
+  var pw = document.getElementById('pwInput').value.trim();
+  if (!floor||!pw) { showToast('층/위치와 비밀번호를 입력해주세요'); return; }
+  passwords.push({id:Date.now(), placeName:currentPlace.name, placeAddr:currentPlace.addr, lat:currentPlace.lat, lng:currentPlace.lng, floor:floor, gender:gender, pw:pw, confirmedAt:'방금 전', confirmedCount:0});
+  closeModal('addModal');
+  ['floorInput','pwInput','oathInput'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('oathStatus').textContent=''; document.getElementById('submitBtn').disabled=true;
+  refreshMarkers(); showPlaceSheet(currentPlace.lat, currentPlace.lng); showToast('✅ 등록 완료! 감사해요 🙏');
+}
+
+function confirmPw(id) {
+  var item = passwords.find(function(p){ return p.id===id; });
+  if (item) { item.confirmedCount++; item.confirmedAt='방금 전'; showPlaceSheet(currentPlace.lat, currentPlace.lng); showToast('👍 확인 감사해요!'); }
+}
+function reportPw(id) { showToast('🚨 제보 접수됐어요. 확인 후 처리할게요'); }
+
+function handleLogin() {
+  if (isLoggedIn) { isLoggedIn=false; document.getElementById('loginBtn').innerHTML='💬 카카오 로그인'; showToast('로그아웃 됐어요'); return; }
+  Kakao.init(KAKAO_JS_KEY);
+  Kakao.Auth.login({
+    success: function() {
+      Kakao.API.request({url:'/v2/user/me', success:function(res){
+        isLoggedIn=true;
+        var nick = res.kakao_account && res.kakao_account.profile ? res.kakao_account.profile.nickname : '사용자';
+        document.getElementById('loginBtn').innerHTML='👤 '+nick;
+        showToast('✅ 로그인 됐어요!');
+      }});
+    },
+    fail: function(err) { showToast('로그인 실패: '+(err.error_description||'')); }
+  });
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+document.addEventListener('click', function(e) {
+  var m = document.getElementById('addModal');
+  if (m.classList.contains('open') && e.target===m) closeModal('addModal');
+});
 </script>
+
+<!-- 카카오 SDK (로그인용) -->
+<script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+<!-- 카카오 지도 SDK - onload로 initMap 호출 -->
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b35ff72524613a2c48022c5d6917a911&libraries=services&onload=initMap"></script>
+
 </body>
 </html>
