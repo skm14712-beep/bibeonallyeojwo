@@ -557,12 +557,9 @@ function loadPublicToilets() {
     }
 
     // 현재 위치 기준 500m 이내만 표시
-    var nearby = items.filter(function(item) {
-      if (!item.WGS84_LAT || !item.WGS84_LON) return false;
-      var dlat = parseFloat(item.WGS84_LAT) - lat;
-      var dlng = parseFloat(item.WGS84_LON) - lng;
-      return Math.sqrt(dlat*dlat + dlng*dlng) < 0.05;
-    });
+    var nearby = items;
+        console.log('공공화장실 데이터:', JSON.stringify(data).slice(0,500));
+        console.log('items 개수:', items.length);
 
     nearby.forEach(function(item) {
       var pos = new kakao.maps.LatLng(parseFloat(item.WGS84_LAT), parseFloat(item.WGS84_LON));
