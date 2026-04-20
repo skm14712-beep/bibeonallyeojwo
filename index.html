@@ -123,6 +123,16 @@
   .oath-fail{color:var(--danger)}
   .modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:24px}
 
+  /* PUBLIC TOILET TOGGLE */
+  .map-controls{position:absolute;top:12px;right:12px;z-index:10;display:flex;flex-direction:column;gap:8px}
+  .map-toggle{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:all .15s}
+  .map-toggle.active{background:#1a2a3a;border-color:#60a5fa;color:#60a5fa}
+
+  /* PUBLIC TOILET SHEET */
+  .public-sheet{background:var(--surface2);border:1px solid #1a2a3a;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+  .public-sheet-title{font-size:13px;font-weight:700;color:#60a5fa;margin-bottom:4px}
+  .public-sheet-addr{font-size:12px;color:var(--text2)}
+
   /* TOAST */
   .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:all .3s;z-index:500;white-space:nowrap}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -150,6 +160,9 @@
 
 <div class="map-wrapper" id="mapView">
   <div id="map"></div>
+  <div class="map-controls">
+    <button class="map-toggle" id="publicToiletToggle" onclick="togglePublicToilets()">🚽 공공화장실</button>
+  </div>
 </div>
 
 <div class="list-wrapper" id="listView">
@@ -234,6 +247,8 @@ var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var allData = [];
 var amenityState = {hasPaper: false, hasSoap: false, hasTowel: false};
 var currentTab = 'map';
+var publicMarkers = [], showPublicToilets = false;
+var PUBLIC_API_KEY = '898fc523c04b9682912612aadcbcbe001a6b3300d51794f98fbca2d488b8380f';
 
 function toggleCheck(labelId, key) {
   amenityState[key] = !amenityState[key];
@@ -494,6 +509,59 @@ function handleLogin() {
     },
     fail:function(err){ showToast('로그인 실패: '+(err.error_description||'')); }
   });
+}
+
+function togglePublicToilets() {
+  showPublicToilets = !showPublicToilets;
+  var btn = document.getElementById('publicToiletToggle');
+  if (showPublicToilets) {
+    btn.classList.add('active');
+    loadPublicToilets();
+  } else {
+    btn.classList.remove('active');
+    publicMarkers.forEach(function(m){ m.setMap(null); });
+    publicMarkers = [];
+  }
+}
+
+function loadPublicToilets() {
+  var center = map.getCenter();
+  var lat = center.getLat();
+  var lng = center.getLng();
+  var url = 'https://apis.data.go.kr/1741000/public_restroom_info/getPublicRestroomInfo'
+    + '?serviceKey=' + PUBLIC_API_KEY
+    + '&pageNo=1&numOfRows=50&type=json'
+    + '&WGS84_LAT=' + lat + '&WGS84_LON=' + lng;
+
+  fetch(url)
+    .then(function(res){ return res.json(); })
+    .then(function(data) {
+      publicMarkers.forEach(function(m){ m.setMap(null); }); publicMarkers = [];
+      var items = data && data.items ? data.items : [];
+      if (!Array.isArray(items)) items = [items];
+      items.forEach(function(item) {
+        if (!item.WGS84_LAT || !item.WGS84_LON) return;
+        var pos = new kakao.maps.LatLng(parseFloat(item.WGS84_LAT), parseFloat(item.WGS84_LON));
+        var content = '<div style="background:#1e3a5f;color:#60a5fa;font-size:11px;font-weight:700;padding:4px 8px;border-radius:20px;border:1px solid #60a5fa;white-space:nowrap;cursor:pointer;">🚽 공공화장실</div>';
+        var overlay = new kakao.maps.CustomOverlay({map:map, position:pos, content:content, yAnchor:1});
+        var el = overlay.getContent();
+        if (el && el.addEventListener) {
+          el.addEventListener('click', function(){
+            document.getElementById('placeName').textContent = item.FNAME || '공공화장실';
+            document.getElementById('placeAddr').textContent = item.ANAME || item.LNMADR || '';
+            document.getElementById('toiletList').innerHTML = '<div class="public-sheet"><div class="public-sheet-title">🚽 공공 개방 화장실</div><div class="public-sheet-addr">'+(item.ANAME||item.LNMADR||'')+'</div></div><div class="empty-state"><div class="emoji">ℹ️</div><p>공공화장실입니다.<br>비밀번호 없이 이용 가능해요.</p></div>';
+            document.getElementById('bottomSheet').classList.add('open');
+          });
+        }
+        publicMarkers.push(overlay);
+      });
+      if (items.length === 0) showToast('주변에 공공화장실 정보가 없어요');
+      else showToast('🚽 주변 공공화장실 '+items.length+'개 표시');
+    })
+    .catch(function(err){
+      console.error('공공화장실 API 오류:', err);
+      showToast('공공화장실 데이터를 불러올 수 없어요');
+    });
 }
 
 function showToast(msg) {
