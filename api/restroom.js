@@ -5,11 +5,7 @@ export default async function handler(req, res) {
   const url = `https://apis.data.go.kr/1741000/public_restroom_info/getPublicRestroomInfo`
     + `?serviceKey=${API_KEY}&pageNo=1&numOfRows=3&type=json`;
 
-  try {
-    const response = await fetch(url);
-    const text = await response.text();
-    res.status(200).send(text);
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
+  const response = await fetch(url);
+  const text = await response.text();
+  res.status(200).send(text);
 }
