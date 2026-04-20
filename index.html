@@ -248,7 +248,6 @@ var allData = [];
 var amenityState = {hasPaper: false, hasSoap: false, hasTowel: false};
 var currentTab = 'map';
 var publicMarkers = [], showPublicToilets = false;
-var PUBLIC_API_KEY = '898fc523c04b9682912612aadcbcbe001a6b3300d51794f98fbca2d488b8380f';
 
 function toggleCheck(labelId, key) {
   amenityState[key] = !amenityState[key];
@@ -528,10 +527,7 @@ function loadPublicToilets() {
   var center = map.getCenter();
   var lat = center.getLat();
   var lng = center.getLng();
-  var url = 'https://apis.data.go.kr/1741000/public_restroom_info/getPublicRestroomInfo'
-    + '?serviceKey=' + PUBLIC_API_KEY
-    + '&pageNo=1&numOfRows=50&type=json'
-    + '&WGS84_LAT=' + lat + '&WGS84_LON=' + lng;
+  var url = '/api/restroom?lat=' + lat + '&lng=' + lng;
 
   fetch(url)
     .then(function(res){ return res.json(); })
