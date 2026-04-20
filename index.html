@@ -528,12 +528,9 @@ function loadPublicToilets() {
   fetch('/api/restroom?lat=' + lat + '&lng=' + lng)
   .then(function(r){ return r.json(); })
   .then(function(data) {
-    var items = [];
+  var items = [];
     if (data && data.items) {
       items = Array.isArray(data.items) ? data.items : [data.items];
-    } else if (data && data.response && data.response.body && data.response.body.items) {
-      var raw = data.response.body.items;
-      items = Array.isArray(raw.item) ? raw.item : (raw.item ? [raw.item] : []);
     }
 
     publicMarkers.forEach(function(m){ m.setMap(null); });
