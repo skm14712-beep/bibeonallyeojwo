@@ -561,7 +561,7 @@ function loadPublicToilets() {
       if (!item.WGS84_LAT || !item.WGS84_LON) return false;
       var dlat = parseFloat(item.WGS84_LAT) - lat;
       var dlng = parseFloat(item.WGS84_LON) - lng;
-      return Math.sqrt(dlat*dlat + dlng*dlng) < 0.005;
+      return Math.sqrt(dlat*dlat + dlng*dlng) < 0.05;
     });
 
     nearby.forEach(function(item) {
