@@ -535,7 +535,7 @@ function loadPublicToilets() {
     var sido = region ? region.region_1depth_name : '';
     var sigungu = region ? region.region_2depth_name : '';
 
-    var apiUrl = 'https://apis.data.go.kr/1741000/public_restroom_info/getPublicRestroomInfo'
+    var apiUrl = 'https://apis.data.go.kr/1741000/public_restroom_info/'
       + '?serviceKey=' + PUBLIC_API_KEY
       + '&pageNo=1&numOfRows=100&type=json'
       + '&SIDO=' + encodeURIComponent(sido)
