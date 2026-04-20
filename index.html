@@ -537,21 +537,21 @@ function loadPublicToilets() {
     publicMarkers = [];
 
     var nearby = items.filter(function(item) {
-      if (!item.WGS84_LAT || !item.WGS84_LON) return false;
-      var dlat = parseFloat(item.WGS84_LAT) - lat;
-      var dlng = parseFloat(item.WGS84_LON) - lng;
+      if (!item.lat || !item.lng) return false;
+      var dlat = parseFloat(item.lat) - lat;
+      var dlng = parseFloat(item.lng) - lng;
       return Math.sqrt(dlat*dlat + dlng*dlng) < 0.02;
     });
 
     nearby.forEach(function(item) {
-      var pos = new kakao.maps.LatLng(parseFloat(item.WGS84_LAT), parseFloat(item.WGS84_LON));
+      var pos = new kakao.maps.LatLng(parseFloat(item.lat), parseFloat(item.lng));
       var content = '<div style="background:#1e3a5f;color:#60a5fa;font-size:11px;font-weight:700;padding:4px 8px;border-radius:20px;border:1px solid #60a5fa;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.4)">🚽 공공화장실</div>';
       var overlay = new kakao.maps.CustomOverlay({map:map, position:pos, content:content, yAnchor:1.3});
       var el = overlay.getContent();
       if (el && el.addEventListener) {
         el.addEventListener('click', (function(i){ return function(){
-          document.getElementById('placeName').textContent = i.FNAME || '공공화장실';
-          document.getElementById('placeAddr').textContent = i.ANAME || i.LNMADR || '';
+          document.getElementById('placeName').textContent = i.name || '공공화장실';
+          document.getElementById('placeAddr').textContent = i.road_addr || '';
           document.getElementById('toiletList').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2)"><div style="font-size:36px;margin-bottom:8px">🚽</div><p style="font-size:13px;line-height:1.6">공공 개방 화장실입니다.<br>비밀번호 없이 이용 가능해요.</p></div>';
           document.getElementById('bottomSheet').classList.add('open');
         };})(item));
