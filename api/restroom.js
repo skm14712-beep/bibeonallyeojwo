@@ -1,23 +1,22 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const { lat, lng } = req.query;
-  const API_KEY = '898fc523c04b9682912612aadcbcbe001a6b3300d51794f98fbca2d488b8380f';
-  const KAKAO_REST = '67d35f53f97b576ddeb197e83d3abed1';
+  
+  const SUPABASE_URL = 'https://ucalsyqkkfdtiinrsmnz.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjYWxzeXFra2ZkdGlpbnJzbW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTM0NzMsImV4cCI6MjA5MDU4OTQ3M30.8MTxdwv4mNFi0rqhhFLiBvgf3vNp5xLMbHmTCLl2Jlk';
+
+  const range = 0.01; // 약 1km
+  const url = `${SUPABASE_URL}/rest/v1/public_toilets?lat=gte.${parseFloat(lat)-range}&lat=lte.${parseFloat(lat)+range}&lng=gte.${parseFloat(lng)-range}&lng=lte.${parseFloat(lng)+range}&select=name,road_addr,lat,lng,open_time,phone&limit=50`;
 
   try {
-    const kakaoRes = await fetch(
-      `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lng}&y=${lat}`,
-      { headers: { Authorization: `KakaoAK ${KAKAO_REST}` } }
-    );
-    const kakaoData = await kakaoRes.json();
-    const region = kakaoData?.documents?.[0];
-    const sido = region?.region_1depth_name || '';
-    const sigungu = region?.region_2depth_name || '';
-
-    const url = `https://apis.data.go.kr/1741000/public_restroom_info?serviceKey=${API_KEY}&pageNo=1&numOfRows=100&type=json&SIDO=${encodeURIComponent(sido)}&SIGUNGU=${encodeURIComponent(sigungu)}`;
-    const response = await fetch(url);
-    const text = await response.text();
-    res.status(200).send(text);
+    const response = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    const data = await response.json();
+    res.status(200).json({ items: data });
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
