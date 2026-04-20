@@ -244,6 +244,7 @@ var amenityState = {hasPaper: false, hasSoap: false, hasTowel: false};
 var currentTab = 'map';
 var publicMarkers = [], showPublicToilets = false;
 var PUBLIC_API_KEY = '898fc523c04b9682912612aadcbcbe001a6b3300d51794f98fbca2d488b8380f';
+var KAKAO_REST_KEY = '67d35f53f97b576ddeb197e83d3abed1';
 
 function toggleCheck(labelId, key) {
   amenityState[key] = !amenityState[key];
@@ -525,9 +526,8 @@ function loadPublicToilets() {
   var lng = center.getLng();
   showToast('🚽 공공화장실 불러오는 중...');
 
-  // 카카오 REST API로 현재 위치의 시군구 파악
   fetch('https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=' + lng + '&y=' + lat, {
-    headers: { 'Authorization': 'KakaoAK b35ff72524613a2c48022c5d6917a911' }
+    headers: { 'Authorization': 'KakaoAK ' + KAKAO_REST_KEY }
   })
   .then(function(r){ return r.json(); })
   .then(function(kakaoData) {
@@ -541,25 +541,30 @@ function loadPublicToilets() {
       + '&SIDO=' + encodeURIComponent(sido)
       + '&SIGUNGU=' + encodeURIComponent(sigungu);
 
-    return fetch('https://corsproxy.io/?' + encodeURIComponent(apiUrl));
+    return fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(apiUrl));
   })
   .then(function(r){ return r.json(); })
-  .then(function(data) {
-    publicMarkers.forEach(function(m){ m.setMap(null); });
-    publicMarkers = [];
+  .then(function(wrapper) {
+    var data = {};
+    try { data = JSON.parse(wrapper.contents); } catch(e) {}
 
     var items = [];
     if (data && data.items) {
       items = Array.isArray(data.items) ? data.items : [data.items];
     } else if (data && data.response && data.response.body && data.response.body.items) {
       var raw = data.response.body.items;
-      items = Array.isArray(raw.item) ? raw.item : [raw.item];
+      items = Array.isArray(raw.item) ? raw.item : (raw.item ? [raw.item] : []);
     }
 
-    // 현재 위치 기준 500m 이내만 표시
-    var nearby = items;
-        console.log('공공화장실 데이터:', JSON.stringify(data).slice(0,500));
-        console.log('items 개수:', items.length);
+    publicMarkers.forEach(function(m){ m.setMap(null); });
+    publicMarkers = [];
+
+    var nearby = items.filter(function(item) {
+      if (!item.WGS84_LAT || !item.WGS84_LON) return false;
+      var dlat = parseFloat(item.WGS84_LAT) - lat;
+      var dlng = parseFloat(item.WGS84_LON) - lng;
+      return Math.sqrt(dlat*dlat + dlng*dlng) < 0.02;
+    });
 
     nearby.forEach(function(item) {
       var pos = new kakao.maps.LatLng(parseFloat(item.WGS84_LAT), parseFloat(item.WGS84_LON));
@@ -577,7 +582,7 @@ function loadPublicToilets() {
       publicMarkers.push(overlay);
     });
 
-    if (nearby.length === 0) showToast('주변 500m 내 공공화장실이 없어요');
+    if (nearby.length === 0) showToast('주변에 공공화장실 정보가 없어요');
     else showToast('🚽 공공화장실 ' + nearby.length + '개 표시됐어요');
   })
   .catch(function(e){
